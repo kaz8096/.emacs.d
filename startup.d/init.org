@@ -1,0 +1,160 @@
+#+TITLE emacs configuration
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Global Configurations
+** global keymap
+#+begin_src emacs-lisp
+(global-set-key "\C-h" 'backward-delete-char)
+#+end_src
+
+** scroll&menu&tool bar
+#+begin_src emacs-lisp
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+#+end_src
+
+** smooth scrolling
+#+begin_src emacs-lisp
+(setq gc-cons-threshold (* 128 1024 1024))
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+#+end_src
+
+** package
+#+begin_src emacs-lisp
+(require 'eieio) ;; helm-ls-git causes error due to no-autoload...?
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+#+end_src
+
+** uniquify : create unique buffer name
+#+begin_src emacs-lisp
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'reverse)
+(setq uniquify-separator "/")
+(setq uniquify-after-kill-buffer-p t)
+(setq uniquify-ignore-buffers-re "^\\*"))
+#+end_src
+
+* Helm
+** basic settings
+#+begin_src emacs-lisp
+(require 'helm-config)
+(helm-mode 1)
+(setq helm-buffer-max-length 25)
+(global-set-key (kbd "C-x b") 'helm-for-files)
+(global-set-key (kbd "C-;") 'helm-browse-project)
+(define-key helm-map (kbd "C-h") 'delete-backward-char)
+(define-key helm-find-files-map (kbd "C-h") 'delete-backward-char)
+(setq helm-delete-minibuffer-contents-from-point t)
+(defadvice helm-delete-minibuffer-contents (before helm-emulate-kill-line activate)
+	"Emulate kill-line in helm minibuffer"
+	(kill-new (buffer-substring (point) (field-end))))
+(add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+(add-to-list 'helm-completing-read-handlers-alist '(find-file-read-only . nil))
+(defadvice helm-buffers-sort-transformer (around ignore activate)
+	(setq ad-return-value (ad-get-arg 0)))
+(custom-set-variables '(helm-ff-auto-update-initial-value nil))
+(define-key helm-read-file-map (kbd "C-h") 'delete-backward-char)
+(define-key helm-read-file-map (kbd "C-i") 'helm-execute-persistent-action)
+#+end_src
+
+** find-file
+*** it creates new buffer if hit tab twice for an unexist file. this prevent the behavior.
+#+begin_src emacs-lisp
+(defadvice helm-ff-kill-or-find-bufer-fname (around execute-only-if-exist activate)
+	"Execute command only if CANDIDATE exists"
+	(when (file-exists-p candidate)
+	  ad-do-it))
+#+end_src
+
+*** change find-file regexp behavior (see: https://abicky.net/2014/01/04/170448/)
+#+begin_src emacs-lisp
+(defadvice helm-ff-transform-fname-for-completion (around my-transform activate)
+	"Transform the pattern to reflect my intention"
+	(let* ((pattern (ad-get-arg 0))
+		   (input-pattern (file-name-nondirectory pattern))
+		   (dirname (file-name-directory pattern)))
+	  (setq input-pattern (replace-regexp-in-string "\\." "\\\\." input-pattern))
+	  (setq ad-return-value
+			(concat dirname
+					(if (string-match "^\\^" input-pattern)
+						;; '^' is a pattern for basename
+						;; and not required because the directory name is prepended
+						(substring input-pattern 1)
+					  (concat ".*" input-pattern))))))
+#+end_src
+
+** helm-M-x
+#+begin_src emacs-lisp
+(setq helm-M-x-fuzzy-match t)
+(global-set-key (kbd "M-x") 'helm-M-x)
+#+end_src
+
+** helm-swoop
+#+begin_src emacs-lisp
+(require 'helm-swoop)
+(global-set-key (kbd "C-M-s") 'helm-swoop)
+(define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
+(define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
+(define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+(setq helm-multi-swoop-edit-save t)
+#+end_src
+
+** helm-gtags
+#+begin_src emacs-lisp
+(custom-set-variables '(helm-gtags-fuzzy-match t))
+(custom-set-variables '(helm-gtags-ignore-case t))
+(setq helm-gtags-auto-update t)
+(global-set-key (kbd "C-c d") 'helm-gtags-dwim)
+(add-hook 'c-mode-hook 'helm-gtags-mode)
+(add-hook 'c++-mode-hook 'helm-gtags-mode)
+(add-hook 'asm-mode-hook 'helm-gtags-mode)
+(add-hook 'csharp-mode-hook 'helm-gtags-mode)
+(add-hook 'helm-gtags-mode-hook
+			'(lambda ()
+			   ;;(local-set-key (kbd "C-c t") 'helm-gtags-find-tag)
+			   (local-set-key (kbd "C-c t") 'helm-gtags-find-pattern)
+			   (local-set-key (kbd "C-c s") 'helm-gtags-find-symbol)
+			   (local-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
+			   (local-set-key (kbd "C-c b") 'helm-gtags-pop-stack)))
+
+(setq helm-gtags-auto-update t)
+(setq helm-gtags-path-style 'absolute)
+#+end_src
+
+** helm-ls-git
+#+begin_src emacs-lisp
+(require 'helm-ls-git)
+#+end_src
+
+
+* multiple-cursors
+** basic settings
+#+begin_src emacs-lisp
+(require 'multiple-cursors)
+#+end_src
+
+** insert-numbers
+#+begin_src emacs-lilsp
+(defvar my/mc/insert-numbers-hist nil)
+(defvar my/mc/insert-numbers-inc 1)
+(defvar my/mc/insert-numbers-pad "%01d")
+(defun my/mc/insert-numbers (start inc pad)
+  "Insert increasing numbers for each cursor specifically."
+  (interactive
+   (list (read-number "Start from: " 0)
+         (read-number "Increment by: " 1)
+         (read-string "Padding (%01d): " nil my/mc/insert-numbers-hist "%01d")))
+  (setq mc--insert-numbers-number start)
+  (setq my/mc/insert-numbers-inc inc)
+  (setq my/mc/insert-numbers-pad pad)
+  (mc/for-each-cursor-ordered
+   (mc/execute-command-for-fake-cursor
+    'my/mc--insert-number-and-increase
+    cursor)))
+#+end_src
