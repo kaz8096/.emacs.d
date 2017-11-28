@@ -2,3 +2,4 @@ auto-save-list/
 elpa/
 *~
 startup.d/init.el
+recentf

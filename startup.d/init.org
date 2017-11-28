@@ -2,160 +2,347 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Global Configurations
+** thema
+#+begin_src emacs-lisp
+  (load-theme 'tango-dark)
+#+end_src
 ** global keymap
+*** C-h
 #+begin_src emacs-lisp
 (global-set-key "\C-h" 'backward-delete-char)
 #+end_src
 
 ** scroll&menu&tool bar
+*** scroll bar
 #+begin_src emacs-lisp
 (scroll-bar-mode -1)
+#+end_src
+*** menu bar
+#+begin_src emacs-lisp
 (menu-bar-mode -1)
+#+end_src
+*** tool bar
+#+begin_src emacs-lisp
 (tool-bar-mode -1)
 #+end_src
 
 ** smooth scrolling
 #+begin_src emacs-lisp
-(setq gc-cons-threshold (* 128 1024 1024))
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
+  (setq gc-cons-threshold (* 128 1024 1024))
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
 #+end_src
 
 ** package
 #+begin_src emacs-lisp
-(require 'eieio) ;; helm-ls-git causes error due to no-autoload...?
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+  (require 'eieio) ;; helm-ls-git causes error due to no-autoload...?
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 #+end_src
 
 ** uniquify : create unique buffer name
 #+begin_src emacs-lisp
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'reverse)
-(setq uniquify-separator "/")
-(setq uniquify-after-kill-buffer-p t)
-(setq uniquify-ignore-buffers-re "^\\*")
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'reverse)
+  (setq uniquify-separator "/")
+  (setq uniquify-after-kill-buffer-p t)
+  (setq uniquify-ignore-buffers-re "^\\*")
 #+end_src
 
+** paren
+#+begin_src emacs-lisp
+  (show-paren-mode 1)
+#+end_src
+** coding system utf8
+#+begin_src emacs-lisp
+  (set-language-environment "Japanese")
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-buffer-file-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (setq file-name-coding-system 'utf-8)
+#+end_src
+** space behavior in minibuffer. completion on spc
+#+begin_src emacs-lisp
+  (define-key minibuffer-local-filename-completion-map (kbd "SPC")
+    'minibuffer-complete)
+  (define-key minibuffer-local-must-match-filename-map (kbd "SPC")
+    'minibuffer-complete)
+#+end_src
+** libraries
+#+begin_src emacs-lisp
+(require 'cl)
+(require 'cl-lib)
+#+end_src
 
+* ORG
+** fontify code in code blocks
+#+begin_src emacs-lisp
+  (setq org-src-fontify-natively t)
+#+end_src
+** indent/tab behavior
+#+begin_src emacs-lisp
+  (setq org-src-tab-acts-natively t)
+#+end_src
+
+* CUA
+** basic settings
+#+begin_src emacs-lisp
+  (cua-mode t)
+  (cua-rectangle-mark-mode)
+  (setq cua-enable-cua-keys nil)
+  (define-key global-map (kbd "C-SPC") '(lambda(&optional arg) (interactive "P")
+                                          (if (or (not mark-active) arg)
+                                              (cua-set-mark arg)
+                                            (cua-rectangle-mark-mode))))
+#+end_src emacs-lisp
+
+* grep
+** basic settings
+#+begin_src emacs-lisp
+(require 'grep)
+#+end_src
+** ignores
+#+begin_src emacs-lisp
+(add-to-list 'grep-find-ignored-directories ".svn")
+(add-to-list 'grep-find-ignored-directories ".git")
+(add-to-list 'grep-find-ignored-files ".suo")
+(add-to-list 'grep-find-ignored-files ".opensdf")
+(add-to-list 'grep-find-ignored-files ".filters")
+#+end_src
 * Helm
 ** basic settings
 #+begin_src emacs-lisp
-(require 'helm-config)
-(helm-mode 1)
-(setq helm-buffer-max-length 25)
-(global-set-key (kbd "C-x b") 'helm-for-files)
-(global-set-key (kbd "C-;") 'helm-browse-project)
-(define-key helm-map (kbd "C-h") 'delete-backward-char)
-(define-key helm-find-files-map (kbd "C-h") 'delete-backward-char)
-(setq helm-delete-minibuffer-contents-from-point t)
-(defadvice helm-delete-minibuffer-contents (before helm-emulate-kill-line activate)
-	"Emulate kill-line in helm minibuffer"
-	(kill-new (buffer-substring (point) (field-end))))
-(add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
-(add-to-list 'helm-completing-read-handlers-alist '(find-file-read-only . nil))
-(defadvice helm-buffers-sort-transformer (around ignore activate)
-	(setq ad-return-value (ad-get-arg 0)))
-(custom-set-variables '(helm-ff-auto-update-initial-value nil))
-(define-key helm-read-file-map (kbd "C-h") 'delete-backward-char)
-(define-key helm-read-file-map (kbd "C-i") 'helm-execute-persistent-action)
+  (require 'helm-config)
+  (helm-mode 1)
+;;  (setq helm-buffer-max-length 25)
+  (global-set-key (kbd "C-x b") 'helm-for-files)
+  (global-set-key (kbd "C-;") 'helm-browse-project)
+;;  (define-key helm-map (kbd "C-h") 'delete-backward-char)
+;;  (define-key helm-find-files-map (kbd "C-h") 'delete-backward-char)
+;;  (setq helm-delete-minibuffer-contents-from-point t)
+;;  (defadvice helm-delete-minibuffer-contents (before helm-emulate-kill-line activate)
+;;    "Emulate kill-line in helm minibuffer"
+;;    (kill-new (buffer-substring (point) (field-end))))
+;;  (defadvice helm-buffers-sort-transformer (around ignore activate)
+;;    (setq ad-return-value (ad-get-arg 0)))
+;;  (define-key helm-read-file-map (kbd "C-h") 'delete-backward-char)
+;;  (define-key helm-read-file-map (kbd "C-i") 'helm-execute-persistent-action)
 #+end_src
 
 ** find-file
+*** auto update initial value...?
+#+begin_src emacs-lisp
+;;  (custom-set-variables '(helm-ff-auto-update-initial-value nil))
+#+end_src
+
+*** completing...?
+#+begin_src emacs-lisp
+;;  (add-to-list 'helm-completing-read-handlers-alist '(find-file . nil))
+;;  (add-to-list 'helm-completing-read-handlers-alist '(find-file-read-only . nil))
+#+end_src
+
 *** it creates new buffer if hit tab twice for an unexist file. this prevent the behavior.
 #+begin_src emacs-lisp
-(defadvice helm-ff-kill-or-find-bufer-fname (around execute-only-if-exist activate)
-	"Execute command only if CANDIDATE exists"
-	(when (file-exists-p candidate)
-	  ad-do-it))
+;;  (defadvice helm-ff-kill-or-find-bufer-fname (around execute-only-if-exist activate)
+;;    "Execute command only if CANDIDATE exists"
+;;    (when (file-exists-p candidate)
+;;      ad-do-it))
 #+end_src
 
 *** change find-file regexp behavior (see: https://abicky.net/2014/01/04/170448/)
 #+begin_src emacs-lisp
-(defadvice helm-ff-transform-fname-for-completion (around my-transform activate)
-	"Transform the pattern to reflect my intention"
-	(let* ((pattern (ad-get-arg 0))
-		   (input-pattern (file-name-nondirectory pattern))
-		   (dirname (file-name-directory pattern)))
-	  (setq input-pattern (replace-regexp-in-string "\\." "\\\\." input-pattern))
-	  (setq ad-return-value
-			(concat dirname
-					(if (string-match "^\\^" input-pattern)
-						;; '^' is a pattern for basename
-						;; and not required because the directory name is prepended
-						(substring input-pattern 1)
-					  (concat ".*" input-pattern))))))
+;;  (defadvice helm-ff-transform-fname-for-completion (around my-transform activate)
+;;    "Transform the pattern to reflect my intention"
+;;    (let* ((pattern (ad-get-arg 0))
+;;           (input-pattern (file-name-nondirectory pattern))
+;;           (dirname (file-name-directory pattern)))
+;;      (setq input-pattern (replace-regexp-in-string "\\." "\\\\." input-pattern))
+;;      (setq ad-return-value
+;;            (concat dirname
+;;                    (if (string-match "^\\^" input-pattern)
+;;                        ;; '^' is a pattern for basename
+;;                        ;; and not required because the directory name is prepended
+;;                        (substring input-pattern 1)
+;;                      (concat ".*" input-pattern))))))
 #+end_src
 
 ** helm-M-x
 #+begin_src emacs-lisp
-(setq helm-M-x-fuzzy-match t)
-(global-set-key (kbd "M-x") 'helm-M-x)
+;;  (setq helm-M-x-fuzzy-match t)
+;;  (global-set-key (kbd "M-x") 'helm-M-x)
 #+end_src
 
 ** helm-swoop
 #+begin_src emacs-lisp
-(require 'helm-swoop)
-(global-set-key (kbd "C-M-s") 'helm-swoop)
-(define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
-(define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
-(define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
-(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-(setq helm-multi-swoop-edit-save t)
+;;  (require 'helm-swoop)
+;;  (global-set-key (kbd "C-M-s") 'helm-swoop)
+;;  (define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
+;;  (define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
+;;  (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+;;  (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+;;  (setq helm-multi-swoop-edit-save t)
 #+end_src
 
 ** helm-gtags
 #+begin_src emacs-lisp
-(custom-set-variables '(helm-gtags-fuzzy-match t))
-(custom-set-variables '(helm-gtags-ignore-case t))
-(setq helm-gtags-auto-update t)
-(global-set-key (kbd "C-c d") 'helm-gtags-dwim)
-(add-hook 'c-mode-hook 'helm-gtags-mode)
-(add-hook 'c++-mode-hook 'helm-gtags-mode)
-(add-hook 'asm-mode-hook 'helm-gtags-mode)
-(add-hook 'csharp-mode-hook 'helm-gtags-mode)
-(add-hook 'helm-gtags-mode-hook
-			'(lambda ()
-			   ;;(local-set-key (kbd "C-c t") 'helm-gtags-find-tag)
-			   (local-set-key (kbd "C-c t") 'helm-gtags-find-pattern)
-			   (local-set-key (kbd "C-c s") 'helm-gtags-find-symbol)
-			   (local-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
-			   (local-set-key (kbd "C-c b") 'helm-gtags-pop-stack)))
-
-(setq helm-gtags-auto-update t)
-(setq helm-gtags-path-style 'absolute)
+;;  (custom-set-variables '(helm-gtags-fuzzy-match t))
+;;  (custom-set-variables '(helm-gtags-ignore-case t))
+;;  (setq helm-gtags-auto-update t)
+;;  (global-set-key (kbd "C-c d") 'helm-gtags-dwim)
+;;  (add-hook 'c-mode-hook 'helm-gtags-mode)
+;;  (add-hook 'c++-mode-hook 'helm-gtags-mode)
+;;  (add-hook 'asm-mode-hook 'helm-gtags-mode)
+;;  (add-hook 'csharp-mode-hook 'helm-gtags-mode)
+;;  (add-hook 'helm-gtags-mode-hook
+;;            '(lambda ()
+;;               ;;(local-set-key (kbd "C-c t") 'helm-gtags-find-tag)
+;;               (local-set-key (kbd "C-c t") 'helm-gtags-find-pattern)
+;;               (local-set-key (kbd "C-c s") 'helm-gtags-find-symbol)
+;;               (local-set-key (kbd "C-c r") 'helm-gtags-find-rtag)
+;;               (local-set-key (kbd "C-c b") 'helm-gtags-pop-stack)))
+;;
+;;  (setq helm-gtags-auto-update t)
+;;  (setq helm-gtags-path-style 'absolute)
 #+end_src
 
 ** helm-ls-git
 #+begin_src emacs-lisp
-(require 'helm-ls-git)
+;;  (require 'helm-ls-git)
 #+end_src
 
-
+* smartrep
+** basic settings
+#+begin_src emacs-lisp
+  (require 'smartrep)
+  (declare-function smartrep-define-key "smartrep")
+#+end_src
 * multiple-cursors
 ** basic settings
 #+begin_src emacs-lisp
-(require 'multiple-cursors)
+  (require 'multiple-cursors)
 #+end_src
 
-** insert-numbers
-#+begin_src emacs-lilsp
-(defvar my/mc/insert-numbers-hist nil)
-(defvar my/mc/insert-numbers-inc 1)
-(defvar my/mc/insert-numbers-pad "%01d")
-(defun my/mc/insert-numbers (start inc pad)
-  "Insert increasing numbers for each cursor specifically."
-  (interactive
-   (list (read-number "Start from: " 0)
-         (read-number "Increment by: " 1)
-         (read-string "Padding (%01d): " nil my/mc/insert-numbers-hist "%01d")))
-  (setq mc--insert-numbers-number start)
-  (setq my/mc/insert-numbers-inc inc)
-  (setq my/mc/insert-numbers-pad pad)
-  (mc/for-each-cursor-ordered
-   (mc/execute-command-for-fake-cursor
-    'my/mc--insert-number-and-increase
-    cursor)))
+** keybindings w/smartrep
+#+begin_src emacs-lisp
+  (declare-function smartrep-define-key "smartrep")
+  (global-set-key (kbd "C-M-e") 'mc/edit-lines)
+  (global-set-key (kbd "C-M-r") 'mc/mark-all-in-region)
+  (global-unset-key "\M-n")
+  (smartrep-define-key global-map "M-n"
+                       '(("M-n"        . 'mc/mark-next-like-this)
+                         ("n"          . 'mc/mark-next-like-this)
+                         ("p"          . 'mc/mark-previous-like-this)
+                         ("m"          . 'mc/mark-more-like-this-extended)
+                         ("u"          . 'mc/unmark-next-like-this)
+                         ("U"          . 'mc/unmark-previous-like-this)
+                         ("s"          . 'mc/skip-to-next-like-this)
+                         ("S"          . 'mc/skip-to-previous-like-this)
+                         ("*"          . 'mc/mark-all-like-this)
+                         ("d"          . 'mc/mark-all-like-this-dwin)
+                         ("i"          . 'my/mc/insert-numbers)
+                         ("o"          . 'mc/sort-regions)
+                         ("r"          . 'mc/reverse-regions)))
+#+end_src
+
+** original insert-numbers
+#+begin_src emacs-lisp
+  (defvar my/mc/insert-numbers-hist nil)
+  (defvar my/mc/insert-numbers-inc 1)
+  (defvar my/mc/insert-numbers-pad "%01d")
+  (defun my/mc/insert-numbers (start inc pad)
+    "Insert increasing numbers for each cursor specifically."
+    (interactive
+     (list (read-number "Start from: " 0)
+           (read-number "Increment by: " 1)
+           (read-string "Padding (%01d): " nil my/mc/insert-numbers-hist "%01d")))
+    (setq mc--insert-numbers-number start)
+    (setq my/mc/insert-numbers-inc inc)
+    (setq my/mc/insert-numbers-pad pad)
+    (mc/for-each-cursor-ordered
+     (mc/execute-command-for-fake-cursor
+      'my/mc--insert-number-and-increase
+      cursor)))
+  (defun my/mc--insert-number-and-increase ()
+    (interactive)
+    (insert (format my/mc/insert-numbers-pad mc--insert-numbers-number))
+    (setq mc--insert-numbers-number (+ mc--insert-numbers-number my/mc/insert-numbers-inc)))
+#+end_src
+
+* js2-mode
+** basic settings
+#+begin_src emacs-lisp
+  (require 'js2-mode)
+  (add-to-list 'auto-mode-alist '("\\.js$\\'" . js2-mode))
+#+end_src
+
+* css-mode
+** basic settings
+#+begin_src emacs-lisp
+  (require 'css-mode)
+  (add-to-list 'auto-mode-alist '("\\.css$\\'" . css-mode))
+#+end_src
+
+* multiweb, js2, css
+** basic settings
+#+begin_src emacs-lisp
+  (require 'multi-web-mode)
+  (require 'js2-mode)
+  (require 'css-mode)
+  (setq mweb-default-major-mode 'html-mode)
+  (multi-web-global-mode 1)
+#+end_src
+** tags and extensions
+#+begin_src emacs-lisp
+(setq mweb-tags
+	  '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
+		(js2-mode "<script[^>]*>" "</script>")
+		(css-mode "<style[^>]*>" "</style>")))
+#+end_src
+
+* w3m
+** basic settings
+#+begin_src emacs-lisp
+(require 'w3m)
+#+end_src
+*** cookies
+#+begin_src emacs-lisp
+  (setq w3m-use-cookies t)
+#+end_src
+*** redirection limit (sometimes eternally redirection happens...)
+#+begin_src emacs-lisp
+  (setq w3m-follow-redirection 200)
+#+end_src
+** key bindings
+#+begin_src emacs-lisp
+  (define-key w3m-mode-map (kbd "u") 'w3m-goto-url)
+  (define-key w3m-mode-map (kbd "g") 'w3m-search)
+  (define-key w3m-mode-map (kbd "C-c n") 'w3m-view-next-page)
+  (define-key w3m-mode-map (kbd "C-c b") 'w3m-view-previous-page)
+#+end_src
+
+* rainbow delimiters
+** basic settings
+#+begin_src emacs-lisp
+(require 'rainbow-delimiters)
+#+end_src
+** mode hooks
+#+begin_src emacs-lisp
+(add-hook 'c++-mode-hook 'rainbow-delimiters-mode)
+(add-hook 'emacs-lisp-mode-hook 'rainbow-delimiters-mode)
+#+end_src
+** emphasis
+#+begin_src emacs-lisp
+(require 'color)
+(defun rainbow-delimiters-using-stronger-colors ()
+  (interactive)
+  (cl-loop
+   for index from 1 to rainbow-delimiters-max-face-count
+   do
+   (let ((face (intern (format "rainbow-delimiters-depth-%d-face" index))))
+    (cl-callf color-saturate-name (face-foreground face) 100))))
+(add-hook 'emacs-startup-hook 'rainbow-delimiters-using-stronger-colors)
 #+end_src
