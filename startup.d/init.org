@@ -3,14 +3,14 @@
 
 * Global Configurations
 ** ntemacs
+*** helm-for-files has a problem without `shell-file-name` settings.
 #+begin_src emacs-lisp
-(when (equal window-system 'w32)
-  (setq shell-file-name "bash")
-  (setenv "SHELL" shell-file-name)
-  (setq explicit-shell-file-name shell-file-name)
-
-  (add-to-list 'default-frame-alist '(font . "Myrica M"))
-  (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
+  (when (equal window-system 'w32)
+    (setq shell-file-name "bash")
+    (setenv "SHELL" shell-file-name)
+    (setq explicit-shell-file-name shell-file-name)
+    (add-to-list 'default-frame-alist '(font . "Myrica M"))
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
 #+end_src
 ** thema
 #+begin_src emacs-lisp
