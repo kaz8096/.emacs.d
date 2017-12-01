@@ -16,6 +16,13 @@
 #+begin_src emacs-lisp
   (load-theme 'tango-dark)
 #+end_src
+** background alpha (M-x set-alpha : 0-100)
+#+begin_src emacs-lisp
+(defun set-alpha (alpha-num)
+  "set frame parameter 'alpha"
+  (interactive "nAlpha: ")
+  (set-frame-parameter nil 'alpha (cons alpha-num '(90))))
+#+end_src
 ** global keymap
 *** C-h
 #+begin_src emacs-lisp
@@ -151,6 +158,12 @@
 #+begin_src emacs-lisp
   (add-hook 'org-agenda-mode-hook '(lambda () (hl-line-mode 1)))
   (setq hl-line-face 'underline)
+#+end_src
+** capture
+#+begin_src emacs-lisp
+  (setq org-capture-templates
+        '(("n" "Note" entry (file+headline (concat journal-directory "/notes.org") "Notes")
+           "* %?n %Un %i")))
 #+end_src
 * cua
 ** basic settings
