@@ -3,3 +3,5 @@ elpa/
 *~
 startup.d/init.el
 recentf
+url/
+history
