@@ -87,8 +87,51 @@
 (require 'cl)
 (require 'cl-lib)
 #+end_src
-
-* ORG
+** directories
+#+begin_src emacs-lisp
+  (setq journal-directory (concat (getenv "DROPBOX_DIR") "journal"))
+#+end_src
+** utility funcs
+    *** check whether the date is the last day of the month or not.
+    ORG-MODE:  * My Task
+                 SCHEDULED: <%%(diary-last-day-of-month date)>
+    DIARY:  %%(diary-last-day-of-month date) Last Day of the Month
+    See also:  (setq org-agenda-include-diary t)
+    (diary-last-day-of-month '(2 28 2017))
+#+begin_src emacs-lisp
+  (defun diary-last-day-of-month (date)
+  "Return `t` if DATE is the last day of the month."
+  (let* ((day (calendar-extract-day date))
+         (month (calendar-extract-month date))
+         (year (calendar-extract-year date))
+         (last-day-of-month
+          (calendar-last-day-of-month month year)))
+    (= day last-day-of-month)))
+#+end_src
+* junk file
+** basic settings
+#+begin_src emacs-lisp
+  (require 'open-junk-file)
+#+end_src
+** keybindings
+#+begin_src emacs-lisp
+  (global-set-key "\C-cj" 'open-junk-file)
+#+end_src
+** junk file settings
+#+begin_src emacs-lisp
+  (setq open-junk-file-format (concat journal-directory "/%Y-%m%d.org"))
+#+end_src
+** open at the place (not open new window)
+#+begin_src emacs-lisp
+  (setq open-junk-file-find-file-function 'find-file)
+#+end_src
+* org
+** keybindings
+#+begin_src emacs-lisp
+  (define-key global-map "\C-cl" 'org-store-link)
+  (define-key global-map "\C-ca" 'org-agenda)
+  (define-key global-map "\C-cr" 'org-remember)
+#+end_src
 ** fontify code in code blocks
 #+begin_src emacs-lisp
   (setq org-src-fontify-natively t)
@@ -98,7 +141,18 @@
   (setq org-src-tab-acts-natively t)
 #+end_src
 
-* CUA
+** files (w/open-junk-file)
+#+begin_src emacs-lisp
+  (setq org-directory journal-directory)
+  (setq org-agenda-files (list org-directory))
+#+end_src
+** agenda
+*** using underline in agenda...?
+#+begin_src emacs-lisp
+  (add-hook 'org-agenda-mode-hook '(lambda () (hl-line-mode 1)))
+  (setq hl-line-face 'underline)
+#+end_src
+* cua
 ** basic settings
 #+begin_src emacs-lisp
   (cua-mode t)
