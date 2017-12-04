@@ -23,10 +23,14 @@
   (interactive "nAlpha: ")
   (set-frame-parameter nil 'alpha (cons alpha-num '(90))))
 #+end_src
+** bind-key
+#+begin_src emacs-lisp
+(require 'bind-key)
+#+end_src
 ** global keymap
 *** C-h
 #+begin_src emacs-lisp
-(global-set-key "\C-h" 'backward-delete-char)
+(bind-key "C-h" 'backward-delete-char)
 #+end_src
 
 ** scroll&menu&tool bar
@@ -84,10 +88,8 @@
 #+end_src
 ** space behavior in minibuffer. completion on spc
 #+begin_src emacs-lisp
-  (define-key minibuffer-local-filename-completion-map (kbd "SPC")
-    'minibuffer-complete)
-  (define-key minibuffer-local-must-match-filename-map (kbd "SPC")
-    'minibuffer-complete)
+  (bind-key "SPC" 'minibuffer-complete minibuffer-local-filename-completion-map)
+  (bind-key "SPC" 'minibuffer-complete minibuffer-local-must-match-filename-map)
 #+end_src
 ** libraries
 #+begin_src emacs-lisp
@@ -115,6 +117,10 @@
           (calendar-last-day-of-month month year)))
     (= day last-day-of-month)))
 #+end_src
+** auto revert
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+#+end_src
 * junk file
 ** basic settings
 #+begin_src emacs-lisp
@@ -122,7 +128,7 @@
 #+end_src
 ** keybindings
 #+begin_src emacs-lisp
-  (global-set-key "\C-cj" 'open-junk-file)
+  (bind-key "C-c j" 'open-junk-file)
 #+end_src
 ** junk file settings
 #+begin_src emacs-lisp
@@ -135,9 +141,9 @@
 * org
 ** keybindings
 #+begin_src emacs-lisp
-  (define-key global-map "\C-cl" 'org-store-link)
-  (define-key global-map "\C-ca" 'org-agenda)
-  (define-key global-map "\C-cr" 'org-remember)
+  (bind-key "C-c l" 'org-store-link)
+  (bind-key "C-c a" 'org-agenda)
+  (bind-key "C-c r" 'org-remember)
 #+end_src
 ** fontify code in code blocks
 #+begin_src emacs-lisp
@@ -171,10 +177,10 @@
   (cua-mode t)
   (cua-rectangle-mark-mode)
   (setq cua-enable-cua-keys nil)
-  (define-key global-map (kbd "C-SPC") '(lambda(&optional arg) (interactive "P")
-                                          (if (or (not mark-active) arg)
-                                              (cua-set-mark arg)
-                                            (cua-rectangle-mark-mode))))
+  (bind-key "C-SPC" '(lambda(&optional arg) (interactive "P")
+                       (if (or (not mark-active) arg)
+                           (cua-set-mark arg)
+                         (cua-rectangle-mark-mode))))
 #+end_src emacs-lisp
 
 * grep
@@ -196,18 +202,18 @@
   (require 'helm-config)
   (helm-mode 1)
   (setq helm-buffer-max-length 25)
-  (global-set-key (kbd "C-x b") 'helm-for-files)
-  (global-set-key (kbd "C-;") 'helm-browse-project)
-  (define-key helm-map (kbd "C-h") 'delete-backward-char)
-  (define-key helm-find-files-map (kbd "C-h") 'delete-backward-char)
+  (bind-key "C-x b" 'helm-for-files)
+  (bind-key "C-;" 'helm-browse-project)
+  (bind-key "C-h" 'delete-backward-char helm-map)
+  (bind-key "C-h" 'delete-backward-char helm-find-files-map)
   (setq helm-delete-minibuffer-contents-from-point t)
   (defadvice helm-delete-minibuffer-contents (before helm-emulate-kill-line activate)
     "Emulate kill-line in helm minibuffer"
     (kill-new (buffer-substring (point) (field-end))))
   (defadvice helm-buffers-sort-transformer (around ignore activate)
     (setq ad-return-value (ad-get-arg 0)))
-  (define-key helm-read-file-map (kbd "C-h") 'delete-backward-char)
-  (define-key helm-read-file-map (kbd "C-i") 'helm-execute-persistent-action)
+  (bind-key "C-h" 'delete-backward-char helm-read-file-map)
+  (bind-key "C-i" 'helm-execute-persistent-action helm-read-file-map)
 #+end_src
 
 ** find-file
@@ -250,26 +256,27 @@
 ** helm-M-x
 #+begin_src emacs-lisp
   (setq helm-M-x-fuzzy-match t)
-  (global-set-key (kbd "M-x") 'helm-M-x)
+  (bind-key "M-x" 'helm-M-x)
 #+end_src
 
 ** helm-swoop
 #+begin_src emacs-lisp
   (require 'helm-swoop)
-  (global-set-key (kbd "C-M-s") 'helm-swoop)
-  (define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
-  (define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
-  (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
-  (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+  (bind-key "C-M-s" 'helm-swoop)
+  (bind-key "C-r" 'helm-previous-line helm-swoop-map)
+  (bind-key "C-s" 'helm-next-line helm-swoop-map)
+  (bind-key "M-i" 'helm-multi-swoop-all-from-helm-swoop helm-swoop-map)
+  (bind-key "M-i" 'helm-swoop-from-isearch isearch-mode-map)
   (setq helm-multi-swoop-edit-save t)
 #+end_src
 
 ** helm-gtags
 #+begin_src emacs-lisp
+  (require 'helm-gtags)
   (custom-set-variables '(helm-gtags-fuzzy-match t))
   (custom-set-variables '(helm-gtags-ignore-case t))
   (setq helm-gtags-auto-update t)
-  (global-set-key (kbd "C-c d") 'helm-gtags-dwim)
+  (bind-key "C-c d" 'helm-gtags-dwim)
   (add-hook 'c-mode-hook 'helm-gtags-mode)
   (add-hook 'c++-mode-hook 'helm-gtags-mode)
   (add-hook 'asm-mode-hook 'helm-gtags-mode)
@@ -293,7 +300,7 @@
 
 ** helm-org-rifle
 #+begin_src emacs-lisp
-   (require 'helm-org-fifle)
+   (require 'helm-org-rifle)
 #+end_src
 * smartrep
 ** basic settings
@@ -399,10 +406,10 @@
 #+end_src
 ** key bindings
 #+begin_src emacs-lisp
-  (define-key w3m-mode-map (kbd "u") 'w3m-goto-url)
-  (define-key w3m-mode-map (kbd "g") 'w3m-search)
-  (define-key w3m-mode-map (kbd "C-c n") 'w3m-view-next-page)
-  (define-key w3m-mode-map (kbd "C-c b") 'w3m-view-previous-page)
+  (bind-key "u" 'w3m-goto-url w3m-mode-map)
+  (bind-key "g" 'w3m-search w3m-mode-map)
+  (bind-key "C-c n" 'w3m-view-next-page w3m-mode-map)
+  (bind-key "C-c b" 'w3m-view-previous-page w3m-mode-map)
 #+end_src
 
 * rainbow delimiters
