@@ -291,6 +291,10 @@
   (require 'helm-ls-git)
 #+end_src
 
+** helm-org-rifle
+#+begin_src emacs-lisp
+   (require 'helm-org-fifle)
+#+end_src
 * smartrep
 ** basic settings
 #+begin_src emacs-lisp
@@ -422,4 +426,10 @@
    (let ((face (intern (format "rainbow-delimiters-depth-%d-face" index))))
     (cl-callf color-saturate-name (face-foreground face) 100))))
 (add-hook 'emacs-startup-hook 'rainbow-delimiters-using-stronger-colors)
+#+end_src
+* omnisharp
+install the server by invoking `M-x omnisharp-install-server`
+** basic settings
+#+begin_src emacs-lisp
+(add-hook 'csharp-mode-hook 'omnisharp-mode)
 #+end_src
