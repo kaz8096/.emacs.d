@@ -16,6 +16,13 @@
 #+begin_src emacs-lisp
   (load-theme 'tango-dark)
 #+end_src
+** package
+#+begin_src emacs-lisp
+  (require 'eieio) ;; helm-ls-git causes error due to no-autoload...?
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+#+end_src
+
 ** background alpha (M-x set-alpha : 0-100)
 #+begin_src emacs-lisp
 (defun set-alpha (alpha-num)
@@ -54,13 +61,6 @@
   (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
   (setq scroll-step 1) ;; keyboard scroll one line at a time
-#+end_src
-
-** package
-#+begin_src emacs-lisp
-  (require 'eieio) ;; helm-ls-git causes error due to no-autoload...?
-  (require 'package)
-  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 #+end_src
 
 ** uniquify : create unique buffer name
@@ -300,7 +300,9 @@
 
 ** helm-org-rifle
 #+begin_src emacs-lisp
-   (require 'helm-org-rifle)
+  (require 'helm-org-rifle)
+  (bind-key "C-c s" 'helm-org-rifle-agenda-files)
+  (bind-key "C-h" 'delete-backward-char helm-org-rifle-map)
 #+end_src
 * smartrep
 ** basic settings
