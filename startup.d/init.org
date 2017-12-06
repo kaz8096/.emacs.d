@@ -300,7 +300,9 @@
 
 ** helm-org-rifle
 #+begin_src emacs-lisp
-   (require 'helm-org-rifle)
+  (require 'helm-org-rifle)
+  (bind-key "C-c s" 'helm-org-rifle-agenda-files)
+  (bind-key "C-h" 'delete-backward-char helm-org-rifle-map)
 #+end_src
 * smartrep
 ** basic settings
@@ -391,6 +393,11 @@
 		(css-mode "<style[^>]*>" "</style>")))
 #+end_src
 
+* csharp
+** basic settings
+#+begin_src emacs-lisp
+  (require 'csharp-mode)
+#+end_src
 * w3m
 ** basic settings
 #+begin_src emacs-lisp
@@ -439,4 +446,37 @@ install the server by invoking `M-x omnisharp-install-server`
 ** basic settings
 #+begin_src emacs-lisp
 (add-hook 'csharp-mode-hook 'omnisharp-mode)
+#+end_src
+* fold-dwim
+** basic settings
+#+begin_src emacs-lisp
+   (require 'fold-dwim)
+#+end_src
+** key bindings
+#+begin_src emacs-lisp
+  (bind-key "<f7>"      'fold-dwim-toggle)
+  (bind-key "<M-f7>"	'fold-dwim-hide-all)
+  (bind-key "<S-M-f7>"	'fold-dwim-show-all)
+#+end_src
+** mode hooks
+#+begin_src emacs-lisp
+  (add-hook 'python-mode-hook 'hs-minor-mode)
+  (add-hook 'c-mode-hook 'hs-minor-mode)
+  (add-hook 'c++-mode-hook 'hs-minor-mode)
+  (add-hook 'csharp-mode-hook 'hs-minor-mode)
+  (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
+#+end_src
+** nested
+#+begin_src emacs-lisp
+  (put 'c++-mode 'fold-dwim-outline-style 'nested)
+  (put 'csharp-mode 'fold-dwim-outline-style 'nested)
+#+end_src
+* my functions
+** BOM insertion
+#+begin_src emacs-lisp
+  (defun insert-BOM()
+    (interactive)
+    (goto-char (point-min))
+    (ucs-insert (string-to-number "FEFF" 16)) 
+  )
 #+end_src
