@@ -23,6 +23,18 @@
 #+begin_src emacs-lisp
   (load-theme 'tango-dark)
 #+end_src
+** package
+#+begin_src emacs-lisp
+  (require 'eieio) ;; helm-ls-git causes error due to no-autoload...?
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+#+end_src
+** libraries
+#+begin_src emacs-lisp
+(require 'cl)
+(require 'cl-lib)
+#+end_src
+
 ** background alpha (M-x set-alpha : 0-100)
 #+begin_src emacs-lisp
 (defun set-alpha (alpha-num)
@@ -91,11 +103,6 @@
   (bind-key "SPC" 'minibuffer-complete minibuffer-local-filename-completion-map)
   (bind-key "SPC" 'minibuffer-complete minibuffer-local-must-match-filename-map)
 #+end_src
-** libraries
-#+begin_src emacs-lisp
-(require 'cl)
-(require 'cl-lib)
-#+end_src
 ** directories
 #+begin_src emacs-lisp
   (setq journal-directory (concat (getenv "DROPBOX_DIR") "journal"))
@@ -121,6 +128,65 @@
 #+begin_src emacs-lisp
   (global-auto-revert-mode 1)
 #+end_src
+
+* backup
+** backup files (foo.txt~)
+*** all backup files are stored in ~/.emacs.d/backups
+#+begin_src emacs-lisp
+  (setq backup-directory-alist '((".*" . "~/.emacs.d/backups")))
+#+end_src
+*** keep 5 backups
+#+begin_src emacs-lisp
+  (setq version-control t)      ;; enable version control for backups
+  (setq kept-new-versions 5)    ;; will keep 5 backups
+  (setq kept-old-versions 1)    ;; will keep the original
+  (setq delete-old-versions t)	;; delete others
+#+end_src
+** auto save files (#foo.txt#)
+*** all auto saves are stored in ~/.emacs.d/autosaves
+#+begin_src emacs-lisp
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/autosaves")))
+#+end_src
+*** auto save interval
+#+begin_src emacs-lisp
+  (setq auto-save-timout 10)      ;; 10 seconds interval
+  (setq auto-save-interval 100)   ;; 100 types
+#+end_src
+** auto save file list
+*** no auto save file list...
+#+begin_src emacs-lisp
+  (setq auto-save-list-file-prefix nil)
+#+end_src
+** lock file
+*** no lock file
+#+begin_src emacs-lisp
+  (setq create-lockfiles nil)
+#+end_src
+** directory inhibit
+*** inhibit list
+#+begin_src emacs-lisp
+  (defvar my-inhibit-auto-file-directory-list
+    (list
+     (getenv "DROPBOX_DIR")
+     )
+    "inhibit directory list for backups, auto-save and lock-file")
+#+end_src
+*** hook on find-file
+#+begin_src emacs-lisp
+  (add-hook 'find-file-hook
+            '(lambda ()
+               (when (listp my-inhibit-auto-file-directory-list)
+                 (let ((inhibit-ptn (concat "^\\(" (mapconcat '(lambda (str) (regexp-quote (expand-file-name str)))
+                                                              my-inhibit-auto-file-directory-list "\\|") "\\)")))
+                   (when (string-match inhibit-ptn buffer-file-name)
+                     (message "inhibit backups")
+                     (setq backup-inhibited t)
+                     (auto-save-mode nil)
+                     (make-local-variable 'create-lockfiles)
+                     (setq create-lockfiles nil)
+                     )))))
+#+end_src
+
 * junk file
 ** basic settings
 #+begin_src emacs-lisp
