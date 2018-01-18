@@ -464,6 +464,13 @@
 #+begin_src emacs-lisp
   (require 'csharp-mode)
 #+end_src
+** my own settings
+#+begin_src emacs-lisp
+  (defun my-csharp-mode-init ()
+    (setq indent-tabs-mode nil))
+  (add-hook 'csharp-mode-hook 'my-csharp-mode-init)
+#+end_src
+
 * w3m
 ** basic settings
 #+begin_src emacs-lisp
@@ -476,6 +483,10 @@
 *** redirection limit (sometimes eternally redirection happens...)
 #+begin_src emacs-lisp
   (setq w3m-follow-redirection 200)
+#+end_src
+*** suppress 'leaving secure page' warning
+#+begin_src emacs-lisp
+  (setq w3m-confirm-leaving-secure-page nil)
 #+end_src
 ** key bindings
 #+begin_src emacs-lisp
