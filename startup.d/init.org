@@ -428,11 +428,21 @@
     (setq mc--insert-numbers-number (+ mc--insert-numbers-number my/mc/insert-numbers-inc)))
 #+end_src
 
-* js2-mode
+* rjsx-mode +js2-mode+
 ** basic settings
 #+begin_src emacs-lisp
-  (require 'js2-mode)
-  (add-to-list 'auto-mode-alist '("\\.js$\\'" . js2-mode))
+  ;;(require 'js2-mode)
+  ;;(add-to-list 'auto-mode-alist '("\\.js$\\'" . js2-mode))
+  (require 'rjsx-mode)
+  (add-to-list 'auto-mode-alist '("\\.js$\\'" . rjsx-mode))
+#+end_src
+** format
+#+begin_src emacs-lisp
+  (add-hook 'rjsx-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq js-indent-level 2)
+              (setq js2-strict-missing-semi-warning nil)))
 #+end_src
 
 * css-mode
@@ -442,11 +452,12 @@
   (add-to-list 'auto-mode-alist '("\\.css$\\'" . css-mode))
 #+end_src
 
-* multiweb, js2, css
+* multiweb, js2, css, rjsx
 ** basic settings
 #+begin_src emacs-lisp
   (require 'multi-web-mode)
   (require 'js2-mode)
+  (require 'rjsx-mode)
   (require 'css-mode)
   (setq mweb-default-major-mode 'html-mode)
   (multi-web-global-mode 1)
