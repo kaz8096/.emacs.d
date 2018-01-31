@@ -108,7 +108,7 @@
   (setq journal-directory (concat (getenv "DROPBOX_DIR") "journal"))
 #+end_src
 ** utility funcs
-    *** check whether the date is the last day of the month or not.
+*** check whether the date is the last day of the month or not.
     ORG-MODE:  * My Task
                  SCHEDULED: <%%(diary-last-day-of-month date)>
     DIARY:  %%(diary-last-day-of-month date) Last Day of the Month
@@ -431,7 +431,7 @@
 * rjsx-mode +js2-mode+
 ** basic settings
 #+begin_src emacs-lisp
-  ;;(require 'js2-mode)
+  (require 'js2-mode)
   ;;(add-to-list 'auto-mode-alist '("\\.js$\\'" . js2-mode))
   (require 'rjsx-mode)
   (add-to-list 'auto-mode-alist '("\\.js$\\'" . rjsx-mode))
@@ -452,13 +452,10 @@
   (add-to-list 'auto-mode-alist '("\\.css$\\'" . css-mode))
 #+end_src
 
-* multiweb, js2, css, rjsx
+* multiweb
 ** basic settings
 #+begin_src emacs-lisp
   (require 'multi-web-mode)
-  (require 'js2-mode)
-  (require 'rjsx-mode)
-  (require 'css-mode)
   (setq mweb-default-major-mode 'html-mode)
   (multi-web-global-mode 1)
 #+end_src
@@ -466,7 +463,7 @@
 #+begin_src emacs-lisp
 (setq mweb-tags
 	  '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-		(js2-mode "<script[^>]*>" "</script>")
+		(rjsx-mode "<script[^>]*>" "</script>")
 		(css-mode "<style[^>]*>" "</style>")))
 #+end_src
 
