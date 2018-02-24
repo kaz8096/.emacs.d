@@ -445,7 +445,7 @@
               (setq js2-strict-missing-semi-warning nil)))
 #+end_src
 * javascript beautify
-it needs to install [[https://github.com/beautify-web/js-beautify][js-beautify]] globally
+it needs to install [[https://github.com/beautify-web/js-beautify][js-beautify]] globally (npm -g install js-beautify)
 #+begin_src emacs-lisp
 (defun my-js-format-region (begin end)
   "リージョンの javascript を整形"
