@@ -18,7 +18,7 @@
  '(helm-gtags-ignore-case t)
  '(package-selected-packages
    (quote
-    (rjsx-mode csharp-mode bind-key helm-org-rifle fold-dwim fold-this open-junk-file w3m smartrep rainbow-delimiters multiple-cursors multi-web-mode json-mode js2-mode helm-swoop helm-ls-git helm-gtags))))
+    (web-mode markdown-toc rjsx-mode csharp-mode bind-key helm-org-rifle fold-dwim fold-this open-junk-file w3m smartrep rainbow-delimiters multiple-cursors multi-web-mode json-mode js2-mode helm-swoop helm-ls-git helm-gtags))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
