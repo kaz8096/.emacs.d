@@ -129,6 +129,10 @@
   (global-auto-revert-mode 1)
 #+end_src
 
+** obsolete org-define-error 
+#+BEGIN_SRC emacs-lisp
+  (define-obsolete-function-alias 'org-define-error 'define-error)
+#+END_SRC
 * backup
 ** backup files (foo.txt~)
 *** all backup files are stored in ~/.emacs.d/backups
@@ -347,6 +351,7 @@
   (add-hook 'c++-mode-hook 'helm-gtags-mode)
   (add-hook 'asm-mode-hook 'helm-gtags-mode)
   (add-hook 'csharp-mode-hook 'helm-gtags-mode)
+  (add-hook 'rjsx-mode-hook 'helm-gtags-mode)
   (add-hook 'helm-gtags-mode-hook
             '(lambda ()
                ;;(local-set-key (kbd "C-c t") 'helm-gtags-find-tag)
@@ -428,21 +433,46 @@
     (setq mc--insert-numbers-number (+ mc--insert-numbers-number my/mc/insert-numbers-inc)))
 #+end_src
 
-* rjsx-mode +js2-mode+
+* web-mode +rjsx-mode js2-mode+
 ** basic settings
 #+begin_src emacs-lisp
-  (require 'js2-mode)
-  ;;(add-to-list 'auto-mode-alist '("\\.js$\\'" . js2-mode))
-  (require 'rjsx-mode)
-  (add-to-list 'auto-mode-alist '("\\.js$\\'" . rjsx-mode))
+  ;;(require 'js2-mode)
+  ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  ;;(require 'rjsx-mode)
+  ;;(add-to-list 'auto-mode-alist '("\\.js\\'" . rjsx-mode))
+  (require 'web-mode)
+  (add-hook 'web-mode-hook
+    (lambda ()
+    (if (equal web-mode-content-type "javascript")
+    (web-mode-set-content-type "jsx")
+    (message "now set to: %s" web-mode-content-type))))
+  (add-hook 'web-mode-hook
+            '(lambda ()
+               (setq web-mode-attr-indent-offset nil)
+               (setq web-mode-markup-indent-offset 2)
+               (setq web-mode-css-indent-offset 2)
+               (setq web-mode-code-indent-offset 2)
+               (setq web-mode-sql-indent-offset 2)
+               (setq indent-tabs-mode nil)
+               (setq tab-width 2)
+            ))
 #+end_src
 ** format
 #+begin_src emacs-lisp
-  (add-hook 'rjsx-mode-hook
-            (lambda ()
-              (setq indent-tabs-mode nil)
-              (setq js-indent-level 2)
-              (setq js2-strict-missing-semi-warning nil)))
+  ;;(add-hook 'rjsx-mode-hook
+  ;;          (lambda ()
+  ;;            (setq indent-tabs-mode nil)
+  ;;            (setq js-indent-level 2)
+  ;;            (setq js2-strict-missing-semi-warning nil)))
+#+end_src
+** patch
+#+begin_src emacs-lisp
+  ;;(defadvice js-jsx-indent-line (after js-jsx-indent-line-after-hack activate)
+  ;;  "Workaround sgml-mode and follow airbnb component style."
+  ;;  (save-excursion
+  ;;    (beginning-of-line)
+  ;;    (if (looking-at-p "^ +\/?> *$")
+  ;;        (delete-char sgml-basic-offset))))
 #+end_src
 * javascript beautify
 it needs to install [[https://github.com/beautify-web/js-beautify][js-beautify]] globally (npm -g install js-beautify)
@@ -459,7 +489,16 @@ it needs to install [[https://github.com/beautify-web/js-beautify][js-beautify]]
 ** basic settings
 #+begin_src emacs-lisp
   (require 'css-mode)
-  (add-to-list 'auto-mode-alist '("\\.css$\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("\\.css\\'" . css-mode))
+#+end_src
+
+* json-mode
+** basic settings
+#+begin_src emacs-lisp
+  (add-hook 'json-mode-hook
+            (lambda ()
+              (make-local-variable 'js-indent-level)
+              (setq js-indent-level 2)))
 #+end_src
 
 * multiweb
@@ -565,6 +604,12 @@ install the server by invoking `M-x omnisharp-install-server`
 #+begin_src emacs-lisp
   (put 'c++-mode 'fold-dwim-outline-style 'nested)
   (put 'csharp-mode 'fold-dwim-outline-style 'nested)
+#+end_src
+* mozc
+** basic setings
+#+begin_src emacs-lisp
+  (require 'mozc)
+  (setq default-input-method "japanese-mozc")
 #+end_src
 * my functions
 ** BOM insertion
