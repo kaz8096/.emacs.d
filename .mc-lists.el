@@ -3,6 +3,8 @@
 
 (setq mc/cmds-to-run-for-all
       '(
+	c-electric-slash
+	org-beginning-of-line
 	org-delete-char
 	org-end-of-line
 	org-force-self-insert

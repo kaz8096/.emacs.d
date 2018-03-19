@@ -139,12 +139,16 @@
 #+begin_src emacs-lisp
   (setq backup-directory-alist '((".*" . "~/.emacs.d/backups")))
 #+end_src
+*** don't clobber symlinks
+#+begin_src emacs-lisp
+  (setq backup-by-copying t)	;; don't clobber symlinks
+#+end_src
 *** keep 5 backups
 #+begin_src emacs-lisp
   (setq version-control t)      ;; enable version control for backups
   (setq kept-new-versions 5)    ;; will keep 5 backups
   (setq kept-old-versions 1)    ;; will keep the original
-  (setq delete-old-versions t)	;; delete others
+  (setq delete-old-versions t)  ;; delete others
 #+end_src
 ** auto save files (#foo.txt#)
 *** all auto saves are stored in ~/.emacs.d/autosaves
@@ -605,12 +609,87 @@ install the server by invoking `M-x omnisharp-install-server`
   (put 'c++-mode 'fold-dwim-outline-style 'nested)
   (put 'csharp-mode 'fold-dwim-outline-style 'nested)
 #+end_src
+<<<<<<< HEAD
 * mozc
 ** basic setings
 #+begin_src emacs-lisp
   (require 'mozc)
   (setq default-input-method "japanese-mozc")
 #+end_src
+* c++-mode indents, etc
+** google style (c&p)
+#+begin_src emacs-lisp
+  (defun c-lineup-expression-plus-4 (langelem)
+    (save-excursion
+      (back-to-indentation)
+      ;; Go to beginning of *previous* line:
+      (c-backward-syntactic-ws)
+      (back-to-indentation)
+      (cond
+         ((looking-at "\\(\\(if\\|for\\|while\\)\\s *(\\)")
+          (goto-char (match-end 1)))
+         ;; For constructor initializer lists, the reference point for line-up is
+         ;; the token after the initial colon.
+         ((looking-at ":\\s *")
+          (goto-char (match-end 0))))
+        (vector (+ 4 (current-column)))))
+    (defconst my-c-style
+      `((c-recognize-knr-p . nil)
+        (c-enable-xemacs-performance-kludge-p . t) ; speed up indent in xemacs
+        (c-basic-offset . 4)
+        (indent-tabs-mode . nil)
+        (c-comment-only-line-offset . 0)
+        (c-offsets-alist . ((arglist-intro c-lineup-expression-plus-4)
+                            (func-decl-cont . ++)
+                            (member-init-intro . ++)
+                            (inher-intro . ++)
+                            (comment-intro . 0)
+                            (arglist-close . c-lineup-arglist)
+                            (topmost-intro . 0)
+                            (block-open . 0)
+                            (inline-open . 0)
+                            (substatement-open . 0)
+                            (inextern-lang . 0)
+                            (statement-cont
+                             .
+                             (,(when (fboundp 'c-no-indent-after-java-annotations)
+                                 'c-no-indent-after-java-annotations)
+                              ,(when (fboundp 'c-lineup-assignments)
+                                 'c-lineup-assignments)
+                              ++))
+                            (label . /)
+                            (case-label . +)
+                            (statement-case-open . +)
+                            (statement-case-intro . +) ; case w/o {
+                            (access-label . /)
+                            (innamespace . 0))))
+      "My C/C++ Programming Style.")
+
+    (defun set-my-c-style ()
+      (interactive)
+      (c-add-style "MyStyle" my-c-style t))
+#+end_src
+** apply the style
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'c-mode-common-hook 'set-my-c-style)
+  (add-hook 'c++-mode-common-hook 'set-my-c-style)
+#+END_SRC
+** whitespace-style
+#+BEGIN_SRC emacs-lisp
+  (require 'whitespace)
+  (setq whitespace-style '(face           ; faceで可視化
+                           trailing       ; 行末
+                           tabs           ; タブ
+  ;;                         empty          ; 先頭/末尾の空行
+                           space-mark     ; 表示のマッピング
+                           tab-mark
+                           ))
+  (setq whitespace-display-mappings
+        '((tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
+
+  (global-whitespace-mode 1)
+#+END_SRC
 * my functions
 ** BOM insertion
 #+begin_src emacs-lisp
