@@ -183,16 +183,17 @@
 #+begin_src emacs-lisp
   (add-hook 'find-file-hook
             '(lambda ()
-               (when (listp my-inhibit-auto-file-directory-list)
-                 (let ((inhibit-ptn (concat "^\\(" (mapconcat '(lambda (str) (regexp-quote (expand-file-name str)))
-                                                              my-inhibit-auto-file-directory-list "\\|") "\\)")))
-                   (when (string-match inhibit-ptn buffer-file-name)
-                     (message "inhibit backups")
-                     (setq backup-inhibited t)
-                     (auto-save-mode nil)
-                     (make-local-variable 'create-lockfiles)
-                     (setq create-lockfiles nil)
-                     )))))
+               (if (not (equal my-inhibit-auto-file-directory-list '(nil)))
+                   (when (listp my-inhibit-auto-file-directory-list)
+                     (let ((inhibit-ptn (concat "^\\(" (mapconcat '(lambda (str) (regexp-quote (expand-file-name str)))
+                                                                  my-inhibit-auto-file-directory-list "\\|") "\\)")))
+                       (when (string-match inhibit-ptn buffer-file-name)
+                         (message "inhibit backups")
+                         (setq backup-inhibited t)
+                         (auto-save-mode nil)
+                         (make-local-variable 'create-lockfiles)
+                         (setq create-lockfiles nil)
+                         ))))))
 #+end_src
 
 * junk file
