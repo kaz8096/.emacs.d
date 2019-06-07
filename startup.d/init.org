@@ -700,3 +700,8 @@ install the server by invoking `M-x omnisharp-install-server`
     (ucs-insert (string-to-number "FEFF" 16)) 
   )
 #+end_src
+* mac specific
+#+BEGIN_SRC emacs-lisp
+(when (eq system-type 'darwin)
+  (setq ns-command-modifier (quote meta)))
+#+END_SRC
